@@ -1,0 +1,12 @@
+[package]
+name = "vulkan_tutorial"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+vulkano = "0.29.0"
+vulkano-win = "0.29.0"
+winit = "0.26.1"
+bytemuck = "1.8.0"
