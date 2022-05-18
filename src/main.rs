@@ -49,12 +49,12 @@ const ENABLE_VALIDATION_LAYERS: bool = false;
 impl HelloTriangleApplication {
     pub fn new() -> Self {
         let instance: Arc<Instance> = Self::create_instance();
+        let (event_loop, surface) = Self::init_window(instance.clone());
         let debug_callback = Self::setup_debug_callback(&instance);
         let physical_device = Self::pick_physical_device(&instance);
         let physical_device_index = physical_device.index();
         let (logical_device, device_queues) = Self::create_logical_device(physical_device);
 
-        let (event_loop, surface) = Self::init_window(instance.clone());
         let event_loop = Some(event_loop);
 
         Self {
