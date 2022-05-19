@@ -2,28 +2,26 @@ use std::{collections::HashSet, sync::Arc};
 
 use vulkano::{
     device::{
-        physical::PhysicalDeviceType, Device, DeviceCreateInfo, DeviceExtensions, Features, Queue,
+        self,
+        physical::{PhysicalDevice, PhysicalDeviceType},
+        Device, DeviceCreateInfo, DeviceExtensions, Queue, QueueCreateInfo,
     },
     format::Format,
-    swapchain::{ColorSpace, PresentMode, Surface, SurfaceCapabilities, SurfaceInfo},
-    Version,
-};
-use vulkano::{
-    device::{
-        physical::{PhysicalDevice, QueueFamily},
-        QueueCreateInfo,
-    },
     instance::{
-        debug::{DebugCallback, Message, MessageSeverity, MessageType},
-        layers_list, Instance, InstanceCreateInfo, InstanceExtensions,
+        debug::{
+            DebugUtilsMessageSeverity, DebugUtilsMessageType, DebugUtilsMessenger,
+            DebugUtilsMessengerCreateInfo,
+        },
+        Instance, InstanceCreateInfo, InstanceExtensions,
     },
+    swapchain::{ColorSpace, PresentMode, Surface, SurfaceCapabilities, SurfaceInfo},
 };
 use vulkano_win::VkSurfaceBuild;
-use winit::event_loop::{ControlFlow, EventLoop};
-use winit::window::{Window, WindowBuilder};
 use winit::{
     dpi::LogicalSize,
     event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::{Window, WindowBuilder},
 };
 
 struct QueueFamilyIndices {
@@ -49,7 +47,7 @@ struct HelloTriangleApplication {
     logical_device: Arc<Device>,
     graphics_queue: Arc<Queue>,
     present_queue: Arc<Queue>,
-    debug_callback: Option<DebugCallback>,
+    debug_callback: Option<DebugUtilsMessenger>,
     event_loop: Option<EventLoop<()>>,
     surface: Arc<Surface<Window>>,
 }
@@ -88,8 +86,7 @@ impl HelloTriangleApplication {
     }
 
     fn required_extensions() -> InstanceExtensions {
-        let mut extensions = vulkano_win::required_extensions();
-
+        let mut extensions = vulkano_win::required_extensions(); // already has surface caps 2
         if ENABLE_VALIDATION_LAYERS {
             extensions.ext_debug_utils = true;
         }
@@ -121,28 +118,36 @@ impl HelloTriangleApplication {
         layers
     }
 
-    fn setup_debug_callback(instance: &Arc<Instance>) -> Option<DebugCallback> {
+    fn setup_debug_callback(instance: &Arc<Instance>) -> Option<DebugUtilsMessenger> {
         if !ENABLE_VALIDATION_LAYERS {
             return None;
         }
 
-        let msg_types = MessageType {
-            general: true,
-            validation: true,
-            performance: true,
-        };
-
-        let msg_severity = MessageSeverity {
+        let message_severity = DebugUtilsMessageSeverity {
             error: true,
             warning: true,
             information: true,
             verbose: true,
         };
 
-        let callback = DebugCallback::new(instance, msg_severity, msg_types, |msg| {
-            println!("{:?}", msg.description);
-        })
-        .expect("Couldn't create DebugCallback");
+        let callback = unsafe {
+            DebugUtilsMessenger::new(
+                instance.clone(),
+                DebugUtilsMessengerCreateInfo {
+                    message_severity,
+                    message_type: DebugUtilsMessageType::all(),
+                    ..DebugUtilsMessengerCreateInfo::user_callback(Arc::new(|msg| {
+                        println!("{}:{}", msg.layer_prefix.unwrap(), msg.description);
+                    }))
+                },
+            )
+            .expect("Couldn't create Debug Utils Messenger")
+        };
+
+        // let callback = DebugCallback::new(instance, message_severity, message_type, |msg| {
+        //     println!("{:?}", msg.description);
+        // })
+        // .expect("Couldn't create DebugCallback");
         Some(callback)
     }
 
@@ -200,6 +205,7 @@ impl HelloTriangleApplication {
             physical_device.surface_capabilities(surface, surface_info.clone()).unwrap();
         let formats = physical_device.surface_formats(surface, surface_info).unwrap();
         let present_modes = physical_device.surface_present_modes(surface).unwrap();
+
         return (capabilities, formats, present_modes.collect());
     }
 
@@ -269,7 +275,7 @@ impl HelloTriangleApplication {
             physical_device,
             DeviceCreateInfo {
                 enabled_extensions: device_extensions,
-                enabled_features: Features::none(),
+                enabled_features: device::Features::none(),
                 queue_create_infos,
                 ..Default::default()
             },

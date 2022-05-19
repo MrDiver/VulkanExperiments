@@ -708,6 +708,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "rangemap"
+version = "1.0.1"
+source = "git+https://github.com/vulkano-rs/rangemap?branch=range-split#5a3a4c7741b6c1f432ce5758f3fb82f7daead812"
+
+[[package]]
 name = "raw-window-handle"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -900,8 +905,7 @@ dependencies = [
 [[package]]
 name = "vulkano"
 version = "0.29.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3663883d6bf6e3d34c891432fe5ce5829ad75f0cc2e43b3d079340385c2d81e0"
+source = "git+https://github.com/vulkano-rs/vulkano.git?branch=master#eec4463ab283ba9a8dd16655e84a22a315863ef2"
 dependencies = [
  "ash",
  "bytemuck",
@@ -913,6 +917,7 @@ dependencies = [
  "parking_lot 0.12.0",
  "proc-macro2",
  "quote",
+ "rangemap",
  "regex",
  "serde",
  "serde_json",
@@ -924,8 +929,7 @@ dependencies = [
 [[package]]
 name = "vulkano-win"
 version = "0.29.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba30adc8d7b317e155e43343b6d30195d335df139d168d2ae5ece7837d57e887"
+source = "git+https://github.com/vulkano-rs/vulkano.git?branch=master#eec4463ab283ba9a8dd16655e84a22a315863ef2"
 dependencies = [
  "cocoa 0.20.2",
  "metal",

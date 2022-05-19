@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-vulkano = "0.29.0"
-vulkano-win = "0.29.0"
+vulkano = {git = "https://github.com/vulkano-rs/vulkano.git", branch = "master"}
+vulkano-win = {git = "https://github.com/vulkano-rs/vulkano.git/", branch = "master", package="vulkano-win"}
 winit = "0.26.1"
 bytemuck = "1.8.0"
